@@ -451,14 +451,18 @@ namespace ExampleTwitchPubsub
         private void OnPubSubServiceConnected(object sender, EventArgs e)
         {
             _logger.Information($"Connected to pubsub server");
-        }
-
-        #endregion
-
-        private void OnListenResponse(object sender, OnListenResponseArgs e)
-        {
             var oauth = Settings.GetSection("twitch.pubsub").GetValue<string>("oauth");
             PubSub.SendTopics(oauth);
         }
+
+        private void OnListenResponse(object sender, OnListenResponseArgs e)
+        {
+            if (!e.Successful)
+            {
+                _logger.Error($"Failed to listen! Response{e.Response}");
+            }
+        }
+
+        #endregion
     }
 }
