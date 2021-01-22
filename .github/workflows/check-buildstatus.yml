@@ -13,11 +13,32 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build TwitchLib.PubSub.Example
       run: dotnet build --no-restore
+
+    - name: Send Failure Discord Notification
+      uses: sarisia/actions-status-discord@v1
+      if: failure()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        color: 0xFF0000
+        title: "Build ${{ job.status }}"
+        username: "TwitchLib Example Deploy"
+
+    - name: Send Success Discord Notification
+      uses: sarisia/actions-status-discord@v1
+      if: success()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        color: 0x00FF00
+        title: "Build ${{ job.status }}"
+        username: "TwitchLib Example Deploy"
