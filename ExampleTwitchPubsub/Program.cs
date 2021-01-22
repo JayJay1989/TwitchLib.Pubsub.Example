@@ -111,7 +111,7 @@ namespace ExampleTwitchPubsub
             PubSub.OnStreamUp += PubSub_OnStreamUp;
             PubSub.OnStreamDown += PubSub_OnStreamDown;
             PubSub.OnViewCount += PubSub_OnViewCount;
-            //PubSub.OnCommercial += PubSub_OnCommercial;
+            PubSub.OnCommercial += PubSub_OnCommercial;
             PubSub.ListenToVideoPlayback(channelId);
         }
 
