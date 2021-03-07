@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using TwitchLib.Api;
+using TwitchLib.Api.Core.Enums;
+using TwitchLib.Api.Helix.Models.ChannelPoints.UpdateCustomRewardRedemptionStatus;
+using TwitchLib.Api.Interfaces;
 using TwitchLib.PubSub;
 using TwitchLib.PubSub.Enums;
 using TwitchLib.PubSub.Events;
@@ -25,6 +30,8 @@ namespace ExampleTwitchPubsub
         public static IConfiguration Settings;
         /// <summary>Twitchlib Pubsub</summary>
         public static ITwitchPubSub PubSub;
+
+        public static ITwitchAPI API;
 
         /// <summary>
         /// Main method
@@ -62,6 +69,12 @@ namespace ExampleTwitchPubsub
         {
             var channelId = Settings.GetSection("twitch").GetValue<string>("channelId");
 
+            //set up twitchlib api
+            API = new TwitchAPI();
+            API.Settings.ClientId = Settings.GetSection("twitch.api").GetValue<string>("client-id");
+            API.Settings.Secret = Settings.GetSection("twitch.api").GetValue<string>("secret");
+
+
             //Set up twitchlib pubsub
             PubSub = new TwitchPubSub();
             PubSub.OnListenResponse += OnListenResponse;
@@ -72,7 +85,6 @@ namespace ExampleTwitchPubsub
             //Set up listeners
             ListenToBits(channelId);
             ListenToChatModeratorActions(channelId, channelId);
-            ListenToCommerce(channelId);
             ListenToFollows(channelId);
             ListenToLeaderboards(channelId);
             ListenToPredictions(channelId);
@@ -205,7 +217,10 @@ namespace ExampleTwitchPubsub
             // "FULFILLED": when a broadcaster or moderator marked the reward as complete
             if (e.Status == "UNFULFILLED")
             {
+
                 _logger.Information($"{e.DisplayName} redeemed: {e.RewardTitle}");
+                API.Helix.ChannelPoints.UpdateCustomRewardRedemptionStatus(e.ChannelId, e.RewardId.ToString(),
+                    new List<string>() { e.RedemptionId.ToString() }, new UpdateCustomRewardRedemptionStatusRequest() { Status = CustomRewardRedemptionStatus.CANCELED });
             }
 
             if (e.Status == "FULFILLED")
@@ -316,21 +331,6 @@ namespace ExampleTwitchPubsub
         private void PubSub_OnFollow(object sender, OnFollowArgs e)
         {
             _logger.Information($"{e.Username} is now following");
-        }
-
-        #endregion
-
-        #region Commerce Events
-
-        private void ListenToCommerce(string channelId)
-        {
-            PubSub.OnChannelCommerceReceived += PubSub_OnChannelCommerceReceived;
-            PubSub.ListenToCommerce(channelId);
-        }
-
-        private void PubSub_OnChannelCommerceReceived(object sender, OnChannelCommerceReceivedArgs e)
-        {
-            _logger.Information($"{e.ItemDescription} => {e.Username}: {e.PurchaseMessage} ");
         }
 
         #endregion
