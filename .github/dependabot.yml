@@ -1,0 +1,16 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: TwitchLib.PubSub
+    versions:
+    - 3.2.1
+    - 3.2.2-preview-f81ffdb933a8372061655ebf96ba45439c6443ab
+  - dependency-name: Serilog.Sinks.Seq
+    versions:
+    - 5.0.0
