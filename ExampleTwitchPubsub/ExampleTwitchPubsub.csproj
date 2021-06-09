@@ -16,7 +16,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1" />
     <PackageReference Include="TwitchLib.Api" Version="3.2.2" />
-    <PackageReference Include="TwitchLib.PubSub" Version="3.2.2-preview-6a44755dce41da85bc90910f923e9a4a7f46b774" />
+    <PackageReference Include="TwitchLib.PubSub" Version="3.2.2" />
   </ItemGroup>
 
   <ItemGroup>
