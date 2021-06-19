@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,8 +15,8 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1" />
-    <PackageReference Include="TwitchLib.Api" Version="3.2.3" />
-    <PackageReference Include="TwitchLib.PubSub" Version="3.2.2" />
+    <PackageReference Include="TwitchLib.Api" Version="3.2.4-preview-fc7c5711a8dfc22ae7b2777b6dcabd03a5aac089" />
+    <PackageReference Include="TwitchLib.PubSub" Version="3.2.3-preview-ffaccb5be075122332aeb3ca0358407df0276b25" />
   </ItemGroup>
 
   <ItemGroup>

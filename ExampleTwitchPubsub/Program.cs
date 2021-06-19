@@ -13,7 +13,6 @@ using TwitchLib.Api.Interfaces;
 using TwitchLib.PubSub;
 using TwitchLib.PubSub.Enums;
 using TwitchLib.PubSub.Events;
-using TwitchLib.PubSub.Interfaces;
 using TwitchLib.PubSub.Models;
 
 
@@ -29,7 +28,7 @@ namespace ExampleTwitchPubsub
         /// <summary>Settings</summary>
         public static IConfiguration Settings;
         /// <summary>Twitchlib Pubsub</summary>
-        public static ITwitchPubSub PubSub;
+        public static TwitchPubSub PubSub;
 
         public static ITwitchAPI API;
 
@@ -192,24 +191,50 @@ namespace ExampleTwitchPubsub
             PubSub.OnCustomRewardDeleted += PubSub_OnCustomRewardDeleted;
             PubSub.OnCustomRewardUpdated += PubSub_OnCustomRewardUpdated;
             PubSub.ListenToRewards(channelId);
+            PubSub.ListenToChannelPoints(channelId);
+            PubSub.OnChannelPointsRewardRedeemed += PubSub_OnChannelPointsRewardRedeemed;
         }
 
+        private void PubSub_OnChannelPointsRewardRedeemed(object sender, OnChannelPointsRewardRedeemedArgs e)
+        {
+            var redemption = e.RewardRedeemed.Redemption;
+            var reward = e.RewardRedeemed.Redemption.Reward;
+            var redeemedUser = e.RewardRedeemed.Redemption.User;
+
+            if (redemption.Status == "UNFULFILLED")
+            {
+
+                _logger.Information($"{redeemedUser.DisplayName} redeemed: {reward.Title}");
+                API.Helix.ChannelPoints.UpdateCustomRewardRedemptionStatus(e.ChannelId, reward.Id,
+                    new List<string>() { e.RewardRedeemed.Redemption.Id }, new UpdateCustomRewardRedemptionStatusRequest() { Status = CustomRewardRedemptionStatus.CANCELED });
+            }
+
+            if (redemption.Status == "FULFILLED")
+            {
+                _logger.Information($"Reward from {redeemedUser.DisplayName} ({reward.Title}) has been marked as complete");
+            }
+        }
+
+        [Obsolete]
         private void PubSub_OnCustomRewardUpdated(object sender, OnCustomRewardUpdatedArgs e)
         {
             _logger.Information($"Reward {e.RewardTitle} has been updated");
         }
 
+        [Obsolete]
         private void PubSub_OnCustomRewardDeleted(object sender, OnCustomRewardDeletedArgs e)
         {
             _logger.Information($"Reward {e.RewardTitle} has been removed");
         }
 
+        [Obsolete]
         private void PubSub_OnCustomRewardCreated(object sender, OnCustomRewardCreatedArgs e)
         {
             _logger.Information($"{e.RewardTitle} has been created");
             _logger.Debug($"{e.RewardTitle} (\"{e.RewardId}\")");
         }
 
+        [Obsolete]
         private void PubSub_OnRewardRedeemed(object sender, OnRewardRedeemedArgs e)
         {
             //Statuses can be:
