@@ -14,6 +14,7 @@ using TwitchLib.PubSub;
 using TwitchLib.PubSub.Enums;
 using TwitchLib.PubSub.Events;
 using TwitchLib.PubSub.Models;
+using PredictionStatus = TwitchLib.PubSub.Enums.PredictionStatus;
 
 
 namespace ExampleTwitchPubsub
@@ -195,7 +196,7 @@ namespace ExampleTwitchPubsub
             PubSub.OnChannelPointsRewardRedeemed += PubSub_OnChannelPointsRewardRedeemed;
         }
 
-        private void PubSub_OnChannelPointsRewardRedeemed(object sender, OnChannelPointsRewardRedeemedArgs e)
+        private async void PubSub_OnChannelPointsRewardRedeemed(object sender, OnChannelPointsRewardRedeemedArgs e)
         {
             var redemption = e.RewardRedeemed.Redemption;
             var reward = e.RewardRedeemed.Redemption.Reward;
@@ -205,7 +206,7 @@ namespace ExampleTwitchPubsub
             {
 
                 _logger.Information($"{redeemedUser.DisplayName} redeemed: {reward.Title}");
-                API.Helix.ChannelPoints.UpdateCustomRewardRedemptionStatus(e.ChannelId, reward.Id,
+                await API.Helix.ChannelPoints.UpdateRedemptionStatusAsync(e.ChannelId, reward.Id,
                     new List<string>() { e.RewardRedeemed.Redemption.Id }, new UpdateCustomRewardRedemptionStatusRequest() { Status = CustomRewardRedemptionStatus.CANCELED });
             }
 
@@ -235,7 +236,7 @@ namespace ExampleTwitchPubsub
         }
 
         [Obsolete]
-        private void PubSub_OnRewardRedeemed(object sender, OnRewardRedeemedArgs e)
+        private async void PubSub_OnRewardRedeemed(object sender, OnRewardRedeemedArgs e)
         {
             //Statuses can be:
             // "UNFULFILLED": when a user redeemed the reward
@@ -244,7 +245,7 @@ namespace ExampleTwitchPubsub
             {
 
                 _logger.Information($"{e.DisplayName} redeemed: {e.RewardTitle}");
-                API.Helix.ChannelPoints.UpdateCustomRewardRedemptionStatus(e.ChannelId, e.RewardId.ToString(),
+                await API.Helix.ChannelPoints.UpdateRedemptionStatusAsync(e.ChannelId, e.RewardId.ToString(),
                     new List<string>() { e.RedemptionId.ToString() }, new UpdateCustomRewardRedemptionStatusRequest() { Status = CustomRewardRedemptionStatus.CANCELED });
             }
 
